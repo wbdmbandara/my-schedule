@@ -338,7 +338,7 @@ export default function Home() {
           <span className="brand-mark">
             <CalendarDays size={21} />
           </span>
-          myshcedule<span className="brand-dot">.</span>
+          MY SCHEDULE<span className="brand-dot">.</span>
         </a>
         <nav className="page-links" aria-label="Main navigation">
           <Link to="/" aria-current="page">
@@ -753,7 +753,7 @@ export default function Home() {
           </section>
         </div>
         <footer className="desktop-footer">
-          Made for your everyday rhythm.<span>myshcedule.</span>
+          Made for your everyday rhythm.<span>MY SCHEDULE.</span>
         </footer>
       </main>
       <MobileNavigation onAdd={() => setOpen(true)} addLabel="Add block" />

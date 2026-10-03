@@ -188,7 +188,7 @@ export default function NotesPage() {
           <span className="brand-mark">
             <CalendarDays size={21} />
           </span>
-          myshcedule<span className="brand-dot">.</span>
+          MY SCHEDULE<span className="brand-dot">.</span>
         </Link>
         <nav className="page-links" aria-label="Main navigation">
           <Link to="/">Schedule</Link>
@@ -385,7 +385,7 @@ export default function NotesPage() {
         )}
         <p className="contact-storage-note">Notes are saved in this browser.</p>
         <footer className="desktop-footer">
-          Make room for your next idea.<span>myshcedule.</span>
+          Make room for your next idea.<span>MY SCHEDULE.</span>
         </footer>
       </main>
       <MobileNavigation

@@ -9,9 +9,9 @@ function RouteEffects() {
   const { pathname, hash } = useLocation();
   useEffect(() => {
     document.title =
-      { "/contacts": "Contacts · myshcedule", "/notes": "Notes · myshcedule" }[
+      { "/contacts": "Contacts · MY SCHEDULE", "/notes": "Notes · MY SCHEDULE" }[
         pathname
-      ] || "myshcedule · Your daily rhythm";
+      ] || "MY SCHEDULE · Your Daily Rhythm";
     const frame = requestAnimationFrame(() => {
       if (hash) document.getElementById(hash.slice(1))?.scrollIntoView();
       else window.scrollTo(0, 0);

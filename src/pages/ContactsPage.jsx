@@ -314,460 +314,537 @@ export default function Contacts() {
     new Set(rows.map((c) => c.name.charAt(0).toUpperCase())),
   );
   return (
-    <div className="app-shell">
-      <Toaster
-        position="top-center"
-        theme={dark ? "dark" : "light"}
-        richColors
-      />
-      <header className="topbar">
-        <Link className="brand" to="/">
-          <span className="brand-mark">
-            <CalendarDays size={21} />
-          </span>
-          myshcedule<span className="brand-dot">.</span>
-        </Link>
-        <nav className="page-links" aria-label="Main navigation">
-          <Link to="/">Schedule</Link>
-          <Link to="/contacts" aria-current="page">
-            Contacts
-          </Link>
-          <Link to="/notes">Notes</Link>
-        </nav>
-        <div className="top-actions">
-          <button
-            className="icon-button"
-            onClick={() => setDark(!dark)}
-            aria-label={dark ? "Use light theme" : "Use dark theme"}
-          >
-            {dark ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-          <span className="avatar" aria-label="Dilshan">
-            D
-          </span>
-        </div>
-      </header>
-      <main className="workspace contacts-workspace">
-        <section className="contacts-intro">
-          <div>
-            <p className="eyebrow">THE PEOPLE IN YOUR EVERYDAY</p>
-            <h1>
-              Your contacts
-              <span className="contact-heading-icon">
-                <Users size={28} />
-              </span>
-            </h1>
-            <p className="subtext">
-              Keep your people close, and your plans connected.
-            </p>
-          </div>
-          <button
-            className="primary-button"
-            disabled={!ready}
-            onClick={() => edit()}
-          >
-            <Plus size={18} />
-            Add contact
-          </button>
-        </section>
-        <div className="contacts-toolbar">
-          <div className="contact-search">
-            <Search size={19} />
-            <input
-              type="search"
-              aria-label="Search name, phone, email or note"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search name, phone, email or note"
-            />
-          </div>
-          <span className="contacts-count" aria-live="polite">
-            {contacts.length} saved · {rows.length} shown
-          </span>
-        </div>
-        <div
-          className="contact-filters"
-          role="group"
-          aria-label="Filter contacts"
-        >
-          {[
-            ["all", "All contacts"],
-            ["fav", "Favourites"],
-            ...Object.entries(groups),
-          ].map(([k, label]) => (
-            <button
-              key={k}
-              className={`contact-filter ${filter === k ? "active" : ""}`}
-              onClick={() => setFilter(k)}
-              aria-pressed={filter === k}
-            >
-              {k === "fav" && <Star size={14} />} {label}
-              {k === "all" && <span>{contacts.length}</span>}
-            </button>
-          ))}
-        </div>
-        {storageError && (
-          <p className="storage-note" role="alert">
-            {storageError}
-          </p>
-        )}
-        <section className="contact-list" aria-label="Contacts">
-          <div className="contact-list-header">
-            <span>
-              <Users size={17} />
-              {filter === "all"
-                ? "All contacts"
-                : filter === "fav"
-                  ? "Your favourites"
-                  : `${groups[filter]} contacts`}
-            </span>
-            <span>NAME A–Z</span>
-          </div>
-          {rows.length ? (
-            sections.map((letter) => (
-              <div key={letter}>
-                <div className="contact-letter">{letter}</div>
-                {rows
-                  .filter((c) => c.name.charAt(0).toUpperCase() === letter)
-                  .map((c) => (
-                    <article
-                      className={`contact-row group-${c.group}`}
-                      key={c.id}
-                    >
-                      <div className="contact-avatar" aria-hidden="true">
-                        {c.name
-                          .split(/\s+/)
-                          .slice(0, 2)
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()}
-                      </div>
-                      <div className="contact-info">
-                        <div className="contact-name">
-                          <h2>{c.name}</h2>
-                          <span className="contact-tag">{groups[c.group]}</span>
-                        </div>
-                        <div className="contact-details">
-                          {c.phone && (
-                            <a href={`tel:${c.phone.replace(/[^+\d]/g, "")}`}>
-                              {c.phone}
-                            </a>
-                          )}
-                          {c.email && (
-                            <a href={`mailto:${c.email}`}>{c.email}</a>
-                          )}
-                          {!c.phone && !c.email && <span>No details yet</span>}
-                        </div>
-                        {c.note && <p>{c.note}</p>}
-                      </div>
-                      <div className="contact-actions">
-                        {c.phone && (
-                          <a
-                            className="contact-action"
-                            href={`tel:${c.phone.replace(/[^+\d]/g, "")}`}
-                            aria-label={`Call ${c.name}`}
-                            title="Call"
-                          >
-                            <Phone size={17} />
-                          </a>
-                        )}
-                        {c.email && (
-                          <a
-                            className="contact-action"
-                            href={`mailto:${c.email}`}
-                            aria-label={`Email ${c.name}`}
-                            title="Email"
-                          >
-                            <Mail size={17} />
-                          </a>
-                        )}
-                        <button
-                          className="contact-action schedule-call"
-                          onClick={() => planCall(c)}
-                          aria-label={`Schedule a call with ${c.name}`}
-                          title="Schedule a call"
-                        >
-                          <CalendarDays size={17} />
-                          <span>Plan call</span>
-                        </button>
-                        <button
-                          className={`contact-action ${c.fav ? "is-favourite" : ""}`}
-                          onClick={() =>
-                            setContacts((cs) =>
-                              cs.map((x) =>
-                                x.id === c.id ? { ...x, fav: !x.fav } : x,
-                              ),
-                            )
-                          }
-                          aria-pressed={c.fav}
-                          aria-label={`${c.fav ? "Remove" : "Add"} ${c.name} ${c.fav ? "from" : "to"} favourites`}
-                          title="Favourite"
-                        >
-                          <Star
-                            size={17}
-                            fill={c.fav ? "currentColor" : "none"}
-                          />
-                        </button>
-                        <button
-                          className="contact-action"
-                          onClick={() => edit(c)}
-                          aria-label={`Edit ${c.name}`}
-                          title="Edit"
-                        >
-                          <Pencil size={17} />
-                        </button>
-                        <button
-                          className="contact-action delete-contact"
-                          onClick={() => setRemove(c)}
-                          aria-label={`Delete ${c.name}`}
-                          title="Delete"
-                        >
-                          <Trash2 size={17} />
-                        </button>
-                      </div>
-                    </article>
-                  ))}
-              </div>
-            ))
-          ) : (
-            <div className="empty">
-              <UserRound size={36} />
-              <h3>
-                {query || filter !== "all"
-                  ? "No matching contacts"
-                  : "Your people belong here"}
-              </h3>
-              <p>
-                {query || filter !== "all"
-                  ? "Try another search or choose a different group."
-                  : "Add a contact to keep their details handy."}
-              </p>
-              {query || filter !== "all" ? (
-                <button
-                  className="primary-button"
-                  onClick={() => {
-                    setQuery("");
-                    setFilter("all");
-                  }}
-                >
-                  Clear filters
-                </button>
-              ) : (
-                <button
-                  className="primary-button"
-                  disabled={!ready}
-                  onClick={() => edit()}
-                >
-                  <Plus size={17} />
-                  Add your first contact
-                </button>
-              )}
-            </div>
-          )}
-        </section>
-        <p className="contact-storage-note">
-          {contacts.some((c) => c.id.startsWith("demo-"))
-            ? "Sample contacts to get you started. "
-            : ""}
-          Contacts are saved in this browser.
-        </p>
-        <footer className="desktop-footer">
-          A little connection goes a long way.<span>myshcedule.</span>
-        </footer>
-      </main>
-      <MobileNavigation
-        onAdd={() => edit()}
-        addLabel="Add contact"
-        disabled={!ready}
-      />
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="add-dialog">
-          <DialogTitle>{editId ? "Edit contact" : "Add a contact"}</DialogTitle>
-          <DialogDescription>
-            Keep their details and a helpful reminder together.
-          </DialogDescription>
-          <form onSubmit={save}>
-            <label htmlFor="contact-name">Name</label>
-            <input
-              id="contact-name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Full name"
-              maxLength={60}
-              autoComplete="name"
-              required
-            />
-            <div className="contact-form-details">
-              <div>
-                <label htmlFor="contact-phone">Phone</label>
-                <input
-                  id="contact-phone"
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="+94 77 123 4567"
-                  maxLength={40}
-                  autoComplete="tel"
-                />
-              </div>
-              <div>
-                <label htmlFor="contact-email">Email</label>
-                <input
-                  id="contact-email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="name@example.com"
-                  maxLength={254}
-                  autoComplete="email"
-                />
-              </div>
-            </div>
-            <label>Group</label>
-            <Select
-              value={form.group}
-              onValueChange={(v) => setForm({ ...form, group: v })}
-            >
-              <SelectTrigger className="form-select" aria-label="Contact group">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(groups).map(([k, v]) => (
-                  <SelectItem key={k} value={k}>
-                    {v}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <label htmlFor="contact-note">
-              Note <span>(optional)</span>
-            </label>
-            <textarea
-              id="contact-note"
-              rows={3}
-              maxLength={140}
-              value={form.note}
-              onChange={(e) => setForm({ ...form, note: e.target.value })}
-              placeholder="e.g. Prefers messages before 6 pm"
-            />
-            {error && (
-              <p role="alert" className="error">
-                {error}
-              </p>
-            )}
-            <div className="form-footer">
-              <button
-                type="button"
-                className="text-button"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </button>
-              <button type="submit" className="primary-button">
-                <Check size={17} />
-                Save contact
-              </button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <AlertDialog
-        open={!!remove}
-        onOpenChange={(v) => {
-          if (!v) setRemove(null);
-        }}
-      >
-        <AlertDialogContent className="add-dialog">
-          <AlertDialogTitle>Delete {remove?.name}?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This contact will be removed from this browser. Existing scheduled
-            calls will remain in your schedule.
-          </AlertDialogDescription>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="danger-button"
-              onClick={() => {
-                setContacts((cs) => cs.filter((c) => c.id !== remove?.id));
-                setRemove(null);
-                toast.success("Contact deleted");
-              }}
-            >
-              Delete contact
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <Dialog
-        open={!!call}
-        onOpenChange={(v) => {
-          if (!v) setCall(null);
-        }}
-      >
-        <DialogContent className="add-dialog">
-          <DialogTitle>Plan a call with {call?.name}</DialogTitle>
-          <DialogDescription>
-            Choose a free time to add this call to your schedule.
-          </DialogDescription>
-          <form onSubmit={schedule}>
-            <label htmlFor="call-date">Date</label>
-            <input
-              id="call-date"
-              type="date"
-              required
-              min={key(new Date())}
-              value={callForm.date}
-              onChange={(e) =>
-                setCallForm({ ...callForm, date: e.target.value })
-              }
-            />
-            <div className="form-times">
-              <div>
-                <label htmlFor="call-start">Start time</label>
-                <input
-                  id="call-start"
-                  type="time"
-                  required
-                  value={callForm.start}
-                  onChange={(e) =>
-                    setCallForm({ ...callForm, start: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label htmlFor="call-end">End time</label>
-                <input
-                  id="call-end"
-                  type="time"
-                  required
-                  value={callForm.end}
-                  onChange={(e) =>
-                    setCallForm({ ...callForm, end: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            {callError && (
-              <p role="alert" className="error">
-                {callError}
-              </p>
-            )}
-            <div className="form-footer">
-              <button
-                type="button"
-                className="text-button"
-                onClick={() => setCall(null)}
-              >
-                Cancel
-              </button>
-              <button type="submit" className="primary-button">
-                <CalendarDays size={17} />
-                Add to schedule
-              </button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+		<div className="app-shell">
+			<Toaster
+				position="top-center"
+				theme={dark ? "dark" : "light"}
+				richColors
+			/>
+			<header className="topbar">
+				<Link className="brand" to="/">
+					<span className="brand-mark">
+						<CalendarDays size={21} />
+					</span>
+					MY SCHEDULE<span className="brand-dot">.</span>
+				</Link>
+				<nav className="page-links" aria-label="Main navigation">
+					<Link to="/">Schedule</Link>
+					<Link to="/contacts" aria-current="page">
+						Contacts
+					</Link>
+					<Link to="/notes">Notes</Link>
+				</nav>
+				<div className="top-actions">
+					<button
+						className="icon-button"
+						onClick={() => setDark(!dark)}
+						aria-label={dark ? "Use light theme" : "Use dark theme"}
+					>
+						{dark ? <Sun size={20} /> : <Moon size={20} />}
+					</button>
+					<span className="avatar" aria-label="Dilshan">
+						D
+					</span>
+				</div>
+			</header>
+			<main className="workspace contacts-workspace">
+				<section className="contacts-intro">
+					<div>
+						<p className="eyebrow">THE PEOPLE IN YOUR EVERYDAY</p>
+						<h1>
+							Your contacts
+							<span className="contact-heading-icon">
+								<Users size={28} />
+							</span>
+						</h1>
+						<p className="subtext">
+							Keep your people close, and your plans connected.
+						</p>
+					</div>
+					<button
+						className="primary-button"
+						disabled={!ready}
+						onClick={() => edit()}
+					>
+						<Plus size={18} />
+						Add contact
+					</button>
+				</section>
+				<div className="contacts-toolbar">
+					<div className="contact-search">
+						<Search size={19} />
+						<input
+							type="search"
+							aria-label="Search name, phone, email or note"
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							placeholder="Search name, phone, email or note"
+						/>
+					</div>
+					<span className="contacts-count" aria-live="polite">
+						{contacts.length} saved · {rows.length} shown
+					</span>
+				</div>
+				<div
+					className="contact-filters"
+					role="group"
+					aria-label="Filter contacts"
+				>
+					{[
+						["all", "All contacts"],
+						["fav", "Favourites"],
+						...Object.entries(groups),
+					].map(([k, label]) => (
+						<button
+							key={k}
+							className={`contact-filter ${
+								filter === k ? "active" : ""
+							}`}
+							onClick={() => setFilter(k)}
+							aria-pressed={filter === k}
+						>
+							{k === "fav" && <Star size={14} />} {label}
+							{k === "all" && <span>{contacts.length}</span>}
+						</button>
+					))}
+				</div>
+				{storageError && (
+					<p className="storage-note" role="alert">
+						{storageError}
+					</p>
+				)}
+				<section className="contact-list" aria-label="Contacts">
+					<div className="contact-list-header">
+						<span>
+							<Users size={17} />
+							{filter === "all"
+								? "All contacts"
+								: filter === "fav"
+								? "Your favourites"
+								: `${groups[filter]} contacts`}
+						</span>
+						<span>NAME A–Z</span>
+					</div>
+					{rows.length ? (
+						sections.map((letter) => (
+							<div key={letter}>
+								<div className="contact-letter">{letter}</div>
+								{rows
+									.filter(
+										(c) =>
+											c.name.charAt(0).toUpperCase() ===
+											letter
+									)
+									.map((c) => (
+										<article
+											className={`contact-row group-${c.group}`}
+											key={c.id}
+										>
+											<div
+												className="contact-avatar"
+												aria-hidden="true"
+											>
+												{c.name
+													.split(/\s+/)
+													.slice(0, 2)
+													.map((n) => n[0])
+													.join("")
+													.toUpperCase()}
+											</div>
+											<div className="contact-info">
+												<div className="contact-name">
+													<h2>{c.name}</h2>
+													<span className="contact-tag">
+														{groups[c.group]}
+													</span>
+												</div>
+												<div className="contact-details">
+													{c.phone && (
+														<a
+															href={`tel:${c.phone.replace(
+																/[^+\d]/g,
+																""
+															)}`}
+														>
+															{c.phone}
+														</a>
+													)}
+													{c.email && (
+														<a
+															href={`mailto:${c.email}`}
+														>
+															{c.email}
+														</a>
+													)}
+													{!c.phone && !c.email && (
+														<span>
+															No details yet
+														</span>
+													)}
+												</div>
+												{c.note && <p>{c.note}</p>}
+											</div>
+											<div className="contact-actions">
+												{c.phone && (
+													<a
+														className="contact-action"
+														href={`tel:${c.phone.replace(
+															/[^+\d]/g,
+															""
+														)}`}
+														aria-label={`Call ${c.name}`}
+														title="Call"
+													>
+														<Phone size={17} />
+													</a>
+												)}
+												{c.email && (
+													<a
+														className="contact-action"
+														href={`mailto:${c.email}`}
+														aria-label={`Email ${c.name}`}
+														title="Email"
+													>
+														<Mail size={17} />
+													</a>
+												)}
+												<button
+													className="contact-action schedule-call"
+													onClick={() => planCall(c)}
+													aria-label={`Schedule a call with ${c.name}`}
+													title="Schedule a call"
+												>
+													<CalendarDays size={17} />
+													<span>Plan call</span>
+												</button>
+												<button
+													className={`contact-action ${
+														c.fav
+															? "is-favourite"
+															: ""
+													}`}
+													onClick={() =>
+														setContacts((cs) =>
+															cs.map((x) =>
+																x.id === c.id
+																	? {
+																			...x,
+																			fav: !x.fav,
+																	  }
+																	: x
+															)
+														)
+													}
+													aria-pressed={c.fav}
+													aria-label={`${
+														c.fav ? "Remove" : "Add"
+													} ${c.name} ${
+														c.fav ? "from" : "to"
+													} favourites`}
+													title="Favourite"
+												>
+													<Star
+														size={17}
+														fill={
+															c.fav
+																? "currentColor"
+																: "none"
+														}
+													/>
+												</button>
+												<button
+													className="contact-action"
+													onClick={() => edit(c)}
+													aria-label={`Edit ${c.name}`}
+													title="Edit"
+												>
+													<Pencil size={17} />
+												</button>
+												<button
+													className="contact-action delete-contact"
+													onClick={() => setRemove(c)}
+													aria-label={`Delete ${c.name}`}
+													title="Delete"
+												>
+													<Trash2 size={17} />
+												</button>
+											</div>
+										</article>
+									))}
+							</div>
+						))
+					) : (
+						<div className="empty">
+							<UserRound size={36} />
+							<h3>
+								{query || filter !== "all"
+									? "No matching contacts"
+									: "Your people belong here"}
+							</h3>
+							<p>
+								{query || filter !== "all"
+									? "Try another search or choose a different group."
+									: "Add a contact to keep their details handy."}
+							</p>
+							{query || filter !== "all" ? (
+								<button
+									className="primary-button"
+									onClick={() => {
+										setQuery("");
+										setFilter("all");
+									}}
+								>
+									Clear filters
+								</button>
+							) : (
+								<button
+									className="primary-button"
+									disabled={!ready}
+									onClick={() => edit()}
+								>
+									<Plus size={17} />
+									Add your first contact
+								</button>
+							)}
+						</div>
+					)}
+				</section>
+				<p className="contact-storage-note">
+					{contacts.some((c) => c.id.startsWith("demo-"))
+						? "Sample contacts to get you started. "
+						: ""}
+					Contacts are saved in this browser.
+				</p>
+				<footer className="desktop-footer">
+					A little connection goes a long way.
+					<span>MY SCHEDULE.</span>
+				</footer>
+			</main>
+			<MobileNavigation
+				onAdd={() => edit()}
+				addLabel="Add contact"
+				disabled={!ready}
+			/>
+			<Dialog open={open} onOpenChange={setOpen}>
+				<DialogContent className="add-dialog">
+					<DialogTitle>
+						{editId ? "Edit contact" : "Add a contact"}
+					</DialogTitle>
+					<DialogDescription>
+						Keep their details and a helpful reminder together.
+					</DialogDescription>
+					<form onSubmit={save}>
+						<label htmlFor="contact-name">Name</label>
+						<input
+							id="contact-name"
+							value={form.name}
+							onChange={(e) =>
+								setForm({ ...form, name: e.target.value })
+							}
+							placeholder="Full name"
+							maxLength={60}
+							autoComplete="name"
+							required
+						/>
+						<div className="contact-form-details">
+							<div>
+								<label htmlFor="contact-phone">Phone</label>
+								<input
+									id="contact-phone"
+									type="tel"
+									value={form.phone}
+									onChange={(e) =>
+										setForm({
+											...form,
+											phone: e.target.value,
+										})
+									}
+									placeholder="+94 77 123 4567"
+									maxLength={40}
+									autoComplete="tel"
+								/>
+							</div>
+							<div>
+								<label htmlFor="contact-email">Email</label>
+								<input
+									id="contact-email"
+									type="email"
+									value={form.email}
+									onChange={(e) =>
+										setForm({
+											...form,
+											email: e.target.value,
+										})
+									}
+									placeholder="name@example.com"
+									maxLength={254}
+									autoComplete="email"
+								/>
+							</div>
+						</div>
+						<label>Group</label>
+						<Select
+							value={form.group}
+							onValueChange={(v) =>
+								setForm({ ...form, group: v })
+							}
+						>
+							<SelectTrigger
+								className="form-select"
+								aria-label="Contact group"
+							>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{Object.entries(groups).map(([k, v]) => (
+									<SelectItem key={k} value={k}>
+										{v}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						<label htmlFor="contact-note">
+							Note <span>(optional)</span>
+						</label>
+						<textarea
+							id="contact-note"
+							rows={3}
+							maxLength={140}
+							value={form.note}
+							onChange={(e) =>
+								setForm({ ...form, note: e.target.value })
+							}
+							placeholder="e.g. Prefers messages before 6 pm"
+						/>
+						{error && (
+							<p role="alert" className="error">
+								{error}
+							</p>
+						)}
+						<div className="form-footer">
+							<button
+								type="button"
+								className="text-button"
+								onClick={() => setOpen(false)}
+							>
+								Cancel
+							</button>
+							<button type="submit" className="primary-button">
+								<Check size={17} />
+								Save contact
+							</button>
+						</div>
+					</form>
+				</DialogContent>
+			</Dialog>
+			<AlertDialog
+				open={!!remove}
+				onOpenChange={(v) => {
+					if (!v) setRemove(null);
+				}}
+			>
+				<AlertDialogContent className="add-dialog">
+					<AlertDialogTitle>Delete {remove?.name}?</AlertDialogTitle>
+					<AlertDialogDescription>
+						This contact will be removed from this browser. Existing
+						scheduled calls will remain in your schedule.
+					</AlertDialogDescription>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							className="danger-button"
+							onClick={() => {
+								setContacts((cs) =>
+									cs.filter((c) => c.id !== remove?.id)
+								);
+								setRemove(null);
+								toast.success("Contact deleted");
+							}}
+						>
+							Delete contact
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+			<Dialog
+				open={!!call}
+				onOpenChange={(v) => {
+					if (!v) setCall(null);
+				}}
+			>
+				<DialogContent className="add-dialog">
+					<DialogTitle>Plan a call with {call?.name}</DialogTitle>
+					<DialogDescription>
+						Choose a free time to add this call to your schedule.
+					</DialogDescription>
+					<form onSubmit={schedule}>
+						<label htmlFor="call-date">Date</label>
+						<input
+							id="call-date"
+							type="date"
+							required
+							min={key(new Date())}
+							value={callForm.date}
+							onChange={(e) =>
+								setCallForm({
+									...callForm,
+									date: e.target.value,
+								})
+							}
+						/>
+						<div className="form-times">
+							<div>
+								<label htmlFor="call-start">Start time</label>
+								<input
+									id="call-start"
+									type="time"
+									required
+									value={callForm.start}
+									onChange={(e) =>
+										setCallForm({
+											...callForm,
+											start: e.target.value,
+										})
+									}
+								/>
+							</div>
+							<div>
+								<label htmlFor="call-end">End time</label>
+								<input
+									id="call-end"
+									type="time"
+									required
+									value={callForm.end}
+									onChange={(e) =>
+										setCallForm({
+											...callForm,
+											end: e.target.value,
+										})
+									}
+								/>
+							</div>
+						</div>
+						{callError && (
+							<p role="alert" className="error">
+								{callError}
+							</p>
+						)}
+						<div className="form-footer">
+							<button
+								type="button"
+								className="text-button"
+								onClick={() => setCall(null)}
+							>
+								Cancel
+							</button>
+							<button type="submit" className="primary-button">
+								<CalendarDays size={17} />
+								Add to schedule
+							</button>
+						</div>
+					</form>
+				</DialogContent>
+			</Dialog>
+		</div>
   );
 }
