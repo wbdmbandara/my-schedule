@@ -1,3 +1,4 @@
+import MobileNavigation from "../components/MobileNavigation";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
@@ -12,7 +13,6 @@ import {
   Mail,
   Pencil,
   Trash2,
-  Target,
   Check,
   UserRound,
 } from "lucide-react";
@@ -332,6 +332,7 @@ export default function Contacts() {
           <Link to="/contacts" aria-current="page">
             Contacts
           </Link>
+          <Link to="/notes">Notes</Link>
         </nav>
         <div className="top-actions">
           <button
@@ -574,24 +575,11 @@ export default function Contacts() {
           A little connection goes a long way.<span>myshcedule.</span>
         </footer>
       </main>
-      <nav className="mobile-nav contacts-nav" aria-label="Main navigation">
-        <Link to="/">
-          <CalendarDays size={21} />
-          <span>Schedule</span>
-        </Link>
-        <a href="/#focus">
-          <Target size={21} />
-          <span>Focus</span>
-        </a>
-        <Link to="/contacts" aria-current="page">
-          <Users size={21} />
-          <span>Contacts</span>
-        </Link>
-        <button disabled={!ready} onClick={() => edit()}>
-          <Plus size={23} />
-          <span>Add contact</span>
-        </button>
-      </nav>
+      <MobileNavigation
+        onAdd={() => edit()}
+        addLabel="Add contact"
+        disabled={!ready}
+      />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="add-dialog">
           <DialogTitle>{editId ? "Edit contact" : "Add a contact"}</DialogTitle>

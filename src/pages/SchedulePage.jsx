@@ -1,7 +1,7 @@
+import MobileNavigation from "../components/MobileNavigation";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
-  Users,
   CalendarDays,
   Clock3,
   Plus,
@@ -345,6 +345,7 @@ export default function Home() {
             Schedule
           </Link>
           <Link to="/contacts">Contacts</Link>
+          <Link to="/notes">Notes</Link>
         </nav>
         <div className="top-actions">
           <button
@@ -755,24 +756,7 @@ export default function Home() {
           Made for your everyday rhythm.<span>myshcedule.</span>
         </footer>
       </main>
-      <nav className="mobile-nav" aria-label="Home page sections">
-        <a href="#schedule">
-          <CalendarDays size={21} />
-          <span>Schedule</span>
-        </a>
-        <a href="#focus">
-          <Target size={21} />
-          <span>Focus</span>
-        </a>
-        <Link to="/contacts">
-          <Users size={21} />
-          <span>Contacts</span>
-        </Link>
-        <button onClick={() => setOpen(true)}>
-          <Plus size={23} />
-          <span>Add block</span>
-        </button>
-      </nav>
+      <MobileNavigation onAdd={() => setOpen(true)} addLabel="Add block" />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="add-dialog">
           <DialogTitle>Add a schedule block</DialogTitle>
